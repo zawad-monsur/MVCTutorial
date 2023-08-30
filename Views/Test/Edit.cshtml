@@ -1,0 +1,29 @@
+﻿@model MVCTutorial.Models.Employee
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Edit</title>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="editForm" class="container" style="width: 40%; margin-top: 2%">
+        @using (Html.BeginForm("EditEmp", "Test", FormMethod.Post))
+        {
+            @Html.TextBoxFor(model => model.EmployeeId, new { @class = "form-control mb-2", @placeholder = "Employee ID", @value = Model.EmployeeId, @readonly = true})
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control mb-2", @placeholder = "Name" })
+            @Html.DropDownListFor(model => model.Department, ViewBag.DepartmentList as SelectList, "Select Department", new { @class = "form-control mb-2" })
+
+            <input type="submit" class="btn btn-primary" id="addEmployee" value="Save" />
+        }
+
+        @*@Html.ActionLink("Edit", "Edit", "Test",new {@id = "editForm"}, new { htmlAttributes = new { @class = "btn btn-success" } })*@
+        
+    </div>
+</body>
+</html>

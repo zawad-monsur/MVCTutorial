@@ -1,0 +1,64 @@
+﻿<div id="addEmployeeForm" class="m-5" >
+    <form id="formAddEmployee">
+        <h4 class="text-center text-uppercase">New Emplpoyee Information</h4>
+        <label for="employeeId">Employee Id:</label>
+        <input class="form-control mb-2" type="text" id="newEmployeeId" />
+
+        <label for="employeeName">Employee Name:</label>
+        <input class="form-control mb-2" type="text" id="newEmployeeName" />
+
+        <label for="departmentDropdown">Department:</label>
+        <select class="form-control mb-2" id="EmployeeDepartment"></select>
+
+        <button class="btn btn-success" type="submit">Add</button>
+    </form>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        fetchEmployees();
+        // Fetch department names and populate list
+        $.ajax({
+            url: '/Employee_New/GetDepartmentNames',
+            method: 'GET',
+            success: function (data) {
+                var departmentDropdown = $('#EmployeeDepartment');
+                departmentDropdown.append($('<option></option>').val('').text('Select a department'));
+                $.each(data, function (index, department) {
+                    departmentDropdown.append($('<option></option>').val(department.Value).text(department.Text));
+                });
+            }
+        });
+
+
+        // Add employee form submission
+        $('#formAddEmployee').on('submit', function (event) {
+
+            event.preventDefault();
+            var newEmployeeId = $('#newEmployeeId').val();
+            var newEmployeeName = $('#newEmployeeName').val();
+            var newEmployeeDepartment = $('#EmployeeDepartment').val();
+
+            $.ajax({
+                url: '/Employee_New/CreateEmployee',
+                method: 'POST',
+                data: {
+                    Id: newEmployeeId,
+                    Name: newEmployeeName,
+                    DepartmentId: newEmployeeDepartment
+                },
+                success: function () {
+                    $('#newEmployeeName').val('');
+                    $('#EmployeeDepartment').val('');
+                    $('#addEmployeeForm').hide();
+                    fetchEmployees();
+                },
+                error: function () {
+                    alert('An error occurred while adding the employee.');
+                }
+            });
+        });
+    });
+</script>

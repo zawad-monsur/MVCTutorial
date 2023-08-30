@@ -1,0 +1,30 @@
+﻿@model MVCTutorial.Models.Employee
+@{
+    ViewBag.Title = "EmployeeDetail";
+}
+
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container" style="width:30%; margin-top:2%">
+
+    @if (Model != null)
+    {
+        <ul class="list-group">
+            <li class="list-group-item">Name : @Model.Name</li>
+            <li class="list-group-item">EmployeeId : @Model.EmployeeId</li>
+            <li class="list-group-item">Employee Dpt.Name : @Model.Department1.DepartmentName</li>
+        </ul>
+
+    }
+
+<div class="mt-2">
+    <a class="btn btn-dark" href="/Test/Edit?EmployeeId=@Model.EmployeeId">Edit</a>
+    <a class="btn btn-danger" href="/Test/Delete?EmployeeId=@Model.EmployeeId">Delete</a>
+</div>
+
+
+
+
+</div>
+
+

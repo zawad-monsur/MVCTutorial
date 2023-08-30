@@ -1,0 +1,60 @@
+﻿@model MVCTutorial.Models.Employee
+@{
+    Layout = null;
+}
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+    <title>SaveForm</title>
+</head>
+<body>
+    
+                <div class="container" style="width: 40%; margin-top: 2%">
+                    @using (Html.BeginForm("SaveRecord", "Test", FormMethod.Post ))
+                    {
+                        @Html.TextBoxFor(model => model.EmployeeId, new { @class = "form-control mb-2", @placeholder = "Employee ID" })
+                        @Html.TextBoxFor(model => model.Name, new { @class = "form-control mb-2", @placeholder = "Name" })
+                        @Html.DropDownListFor(model => model.Department, ViewBag.DepartmentList as SelectList, "Select Department", new { @class = "form-control mb-2" })
+
+                        <input type="submit" class="btn btn-primary" id="addEmployee" value="Add Employee"/>
+                    }
+                </div>
+            </body>
+        </html>
+
+
+    @*<div class="container" style="width: 40%; margin-top: 2%">
+        <form id="myform">
+            @Html.TextBoxFor(model => model.EmployeeId, new { @class = "form-control mb-2", @placeholder = "Employee ID" })
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control mb-2", @placeholder = "Name" })
+            @Html.DropDownListFor(model => model.Department, ViewBag.DepartmentList as SelectList, "Select Department", new { @class = "form-control mb-2" })
+
+
+            <button type="button" class="btn btn-primary" id="addemployee">Add Employee</button>
+        </form>
+    </div>
+</body>
+</html>
+
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $("#addemployee").click(function () {
+            //debugger
+            var data = $("#myform").serialize();
+
+            $.ajax({
+                type: "POST",
+                URL:'/Test/,
+                data: data,
+                success: function (response) {
+                    alert("Employee Added");
+                }
+            })
+        })
+    })*@

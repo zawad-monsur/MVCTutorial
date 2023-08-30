@@ -1,0 +1,281 @@
+﻿@*<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Employee Management</title>
+        <link href="~/Content/bootstrap.css" rel="stylesheet" />
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body>
+        <link href="~/Content/bootstrap.css" rel="stylesheet" />
+
+        <div class="container" style="width:60%; margin-top:2%">
+            @if (Model != null)
+            {
+                {
+                    <table class="table table-striped">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Department Name</th>
+                        </tr>
+
+                        <tbody id="employeeListContainer">
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.EmployeeId</td>
+                                    <td><a class="btn btn-primary" href="/Test/EmployeeDetail?EmployeeId=@item.EmployeeId">@item.Name</a></td>
+                                    <td>@item.Department</td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                    <div>
+                        @Html.ActionLink("Add Employee", "SaveForm")
+                    </div>
+
+                }
+
+            }
+        </div>
+
+
+
+        <script>
+            // Fetch employees and populate list
+            function fetchEmployees() {
+                $.ajax({
+                    url: '/Employee/Index',
+                    method: 'GET',
+                    success: function (data) {
+
+                        $('#employeeLitContainer').html(data);
+                    }
+                });
+            }
+
+            // Handle add employee
+            //$('#addEmployee').click(function () {
+            //    $.ajax({
+            //        url: '/Employee/AddEmployee',
+            //        method: 'POST',
+            //        data: { name: 'New Employee' },
+            //        success: function () {
+            //            fetchEmployees();
+            //        }
+            //    });
+            //});
+
+            //// Handle update employee
+            //$('#updateEmployee').click(function () {
+            //    $.ajax({
+            //        url: '/Employee/UpdateEmployee',
+            //        method: 'POST',
+            //        data: { id: 1, newName: 'Updated Employee' },
+            //        success: function () {
+            //            fetchEmployees();
+            //        }
+            //    });
+            //});
+
+            //// Handle delete employee
+            //$('#deleteEmployee').click(function () {
+            //    $.ajax({
+            //        url: '/Employee/DeleteEmployee',
+            //        method: 'POST',
+            //        data: { id: 1 },
+            //        success: function () {
+            //            fetchEmployees();
+            //        }
+            //    });
+            //});
+
+            // Initial fetch on page load
+            $(document).ready(function () {
+                fetchEmployees();
+            });
+        </script>
+    </body>
+    </html>*@
+
+
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        ShowEmployees();
+        ("#btnAddEmployee").click(showDiv());
+    })
+
+    $('#toggleForm').click(function () {
+        $('#employeeForm').toggle();
+    });
+
+    function showDiv() {
+        
+        $.ajax({
+            url: '/Employee/EmployeeCreateForm',
+            type: 'Get',
+
+            success: function (data) {
+
+                $("#editForm").toggle();
+            }
+
+        })
+    }
+
+    function ShowEmployees() {
+
+        $.ajax({
+            url: '/Employee/EmployeeList',
+            type: 'Get',
+            dataType: 'json',
+            success: function (employeeList) {
+
+                var obj = ''
+                $.each(employeeList, function (index, item) {
+                    obj += '<tr>'
+                    obj += '<td>' + item.EmployeeId + '</td>'
+                    obj += '<td>' + item.Name + '</td>'
+                    obj += '<td>' + item.Department + '</td>'
+                    obj += '<td>' + item.DepartmentId + '</td>'
+                    obj += '<td><a href=# class="btn btn-primary" id="editButton" onclick="EmployeeEdit(' + item.EmployeeId + ');">Edit</a>||<a href=# class="btn btn-danger" onclick="EmployeeDelete(' + item.EmployeeId + ');" >Delete</a></td>'
+                    obj += '</tr>'
+                });
+                $('#table_data').html(obj);
+            },
+            error: function () {
+                alert('Data couldnt be fetched')
+            }
+        })
+    }
+
+    $.ajax({
+        url: '/Employee/EmployeeCreateForm',
+        method: 'GET',
+        success: function (data) { debugger
+            var departmentDropdown = $('#departmentDropdown');
+            departmentDropdown.append($('<option></option>').val('').text('Select a department'));
+            $.each(data, function (index, department) {
+                departmentDropdown.append($('<option></option>').val(department.Value).text(department.Text));
+            });
+        }
+    });
+
+    function EmployeeDelete(employeeid) {
+
+        $.ajax({
+            url: '/Employee/EmployeeDelete?employeeId=' + employeeid,
+            success: function () {
+                alert('Employee Record Deleted')
+                ShowEmployees()
+            },
+
+        })
+    }
+
+    //function EmployeeEdit(employeeid) {
+    //    debugger
+    //    $.ajax({
+    //        url: '/Employee/EmployeeEditForm?employeeId=' + employeeid,
+    //        success: function (employee) {
+    //            $('#editButton').click(function () {
+    //                $("#editForm").toggle();
+    //            })
+    //        }
+    //    })
+    //}
+
+
+</script>
+
+<h4 class="text-center text-uppercase">All The Employee</h4>
+
+
+<table class="table table-bordered table-striped">
+    <thead class="text-center">
+        <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Department ID</th>
+            <th>Operations</th>
+        </tr>
+    </thead>
+    <tbody id="table_data" class="text-center">
+    </tbody>
+</table>
+<button class="btn btn-sm btn-primary m-2" id="btnAddEmployee" data-bs-toggle="collapse" data-bs-target="#editForm" aria-expanded="true" aria-controls="editForm">Add Employee</button>
+
+<div id="editForm" class="container collapse" style="width: 40%; margin-top: 2%">
+    @*@using (Html.BeginForm("EditEmp", "Test", FormMethod.Post))
+        {
+            @Html.TextBoxFor(model => model.EmployeeId, new { @class = "form-control mb-2", @placeholder = "Employee ID", @value = Model.EmployeeId, @readonly = true })
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control mb-2", @placeholder = "Name" })
+            @Html.DropDownListFor(model => model.Department, ViewBag.DepartmentList as SelectList, "Select Department", new { @class = "form-control mb-2" })
+
+            <input type="submit" class="btn btn-primary" id="addEmployee" value="Save" />
+        }*@
+
+
+
+    @*@using (Html.BeginForm("SaveRecord", "Test", FormMethod.Post))
+        {
+            @Html.TextBoxFor(model => model.EmployeeId, new { @class = "form-control mb-2", @placeholder = "Employee ID" })
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control mb-2", @placeholder = "Name" })
+            @Html.DropDownListFor(model => model.Department, ViewBag.DepartmentList as SelectList, "Select Department", new { @class = "form-control mb-2" })
+
+            <input type="submit" class="btn btn-primary" id="addEmployee" value="Add Employee" />
+        }*@
+    <h2>Add Employee</h2>
+    <div class="container justify-content-start" style="width: 40%; margin-top: 2%">
+        <div>
+            <label for="employeeId">Employee Id:</label>
+            <input class = "form-control mb-2" type="text" id="employeeId" />
+        </div>
+        <div>
+            <label for="employeeName">Employee Name:</label>
+            <input class = "form-control mb-2" type="text" id="employeeName" />
+        </div>
+        <div>
+            <label for="departmentDropdown">Department:</label>
+            <select class = "form-control mb-2" id="departmentDropdown"></select>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-primary m-2" id="submitEmployee">Submit</button>
+        </div>
+    </div>
+
+
+
+</div>
+
+
+@*<div>
+
+        <button class="btn btn-sm btn-primary m-2" id="toggleForm" data-bs-toggle="collapse" data-bs-target="#employeeForm" aria-expanded="true" aria-controls="employeeForm">Add Employee</button>
+        <div id="employeeForm"  class="container collapse" style="display: none; width: 40%; margin-top: 2%" >
+           <h2>Add Employee</h2>
+            <div>
+                <label for="employeeId">Employee Id:</label>
+                <input type="text" id="employeeId" />
+            </div>
+            <div>
+                <label for="employeeName">Employee Name:</label>
+                <input type="text" id="employeeName" />
+            </div>
+            <div>
+                <label for="departmentDropdown">Department:</label>
+                <select id="departmentDropdown"></select>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-primary m-2" id="submitEmployee">Submit</button>
+            </div>
+        </div>
+    </div>*@
+

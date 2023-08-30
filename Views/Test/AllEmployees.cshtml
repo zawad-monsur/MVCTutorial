@@ -1,0 +1,21 @@
+﻿@model List<MVCTutorial.Models.Employee>
+@{
+    ViewBag.Title = "All Employees";
+    Layout = null;
+}
+
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+
+<div class="container" style="width:60%; margin-top:2%">
+    @if (Model != null)
+    {
+        <ul class="list-group">
+            @foreach (var item in Model)
+            {
+                <li class="list-group-item">
+                    <a class="btn btn-primary" href="/Test/EmployeeDetail?EmployeeId=@item.EmployeeId">@item.Name</a>
+                </li>
+            }
+        </ul>
+    }
+</div>

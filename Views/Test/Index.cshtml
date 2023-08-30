@@ -1,0 +1,42 @@
+﻿@model List<MVCTutorial.Models.Employee>
+@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+
+<div class="container" style="width:60%; margin-top:2%">
+    @if (Model != null)
+    {
+        {
+            <table class="table table-striped">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Department ID</th>
+                    <th>Department Name</th>
+                </tr>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.EmployeeId</td>
+                            <td><a class="btn btn-primary" href="/Test/EmployeeDetail?EmployeeId=@item.EmployeeId">@item.Name</a></td>
+                            <td>@item.DepartmentId</td>
+                            <td>@item.Department1.DepartmentName</td>
+                        </tr>
+                    }
+                </tbody>
+                
+            </table>
+            <div>
+                @Html.ActionLink("Add Employee", "SaveForm")
+            </div>
+
+        }
+
+    }
+</div>
+

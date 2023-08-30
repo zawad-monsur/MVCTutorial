@@ -1,0 +1,296 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Employee Management</title>
+    @* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>*@
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+    <h2 class="text-center text-uppercase">Employee Management</h2>
+    <button class="btn btn-primary m-2" id="addEmployeeButton">Add Employee</button>
+
+    <div id="addEmployeeForm" class="m-5" style="display: none;">
+        <form id="formAddEmployee">
+            <h4 class="text-center text-uppercase">New Emplpoyee Information</h4>
+            <label for="employeeId">Employee Id:</label>
+            <input class="form-control mb-2" type="text" id="newEmployeeId" />
+
+            <label for="employeeName">Employee Name:</label>
+            <input class="form-control mb-2" type="text" id="newEmployeeName" />
+
+            <label for="departmentDropdown">Department:</label>
+            <select class="form-control mb-2" id="EmployeeDepartment"></select>
+
+            <button class="btn btn-success" type="submit">Add</button>
+        </form>
+    </div>
+
+    <div id="">
+        <!-- Employee list goes here -->
+        <table class="table table-bordered table-striped">
+            <thead class="text-center">
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Operations</th>
+                </tr>
+            </thead>
+            <tbody id="employeeList" class="text-center">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container" id="employeeDetails">
+        <!-- Employee details go here -->
+
+    </div>
+
+    <div class="container" id="employeeEdit">
+        <!-- Employee details go here -->
+
+        <div id="editEmployeeForm" style="display: none;">
+            <form id="formEditEmployee">
+                <h3 class="text-center text-uppercase">Edit Employee Info.</h3>
+                <div class="form-group">
+                    <label for="editEmployeeId">Employee ID</label>
+                    <input id="editEmployeeId" class="form-control" readonly />
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeName">Employee Name</label>
+                    <input type="text" id="editEmployeeName" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeDepartment">Employee Department</label>
+                    <select id="editEmployeeDepartment" class="form-control">
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Save Changes</button>
+                <button type="button" class="btn btn-secondary" id="cancelEdit">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+
+            fetchEmployees();
+            // Fetch department names and populate list
+            $.ajax({
+                url: '/Employee_New/GetDepartmentNames',
+                method: 'GET',
+                success: function (data) {
+                    var departmentDropdown = $('#EmployeeDepartment');
+                    departmentDropdown.append($('<option></option>').val('').text('Select a department'));
+                    $.each(data, function (index, department) {
+                        departmentDropdown.append($('<option></option>').val(department.Value).text(department.Text));
+                    });
+                }
+            });
+
+
+            // Fetch employees and populate list
+            function fetchEmployees() {
+
+                $.ajax({
+                    url: '/Employee_New/GetEmployees',
+                    method: 'GET',
+                    success: function (data) {
+
+                        var obj = ''
+                        $.each(data, function (index, item) {
+                            obj += '<tr>'
+                            obj += '<td>' + item.EmployeeId + '</td>'
+                            obj += '<td><a class ="btn btn-primary employeeLink" href =# data-id="' + item.EmployeeId + '">' + item.Name + '</a></td>'
+                            obj += '<td>' + item.Department + '</td>'
+
+                            obj += '<td><a href=# class="btn btn-primary " id="employeeEditButton" data-id="' + item.EmployeeId + '">Edit</a>||<a href=# class="btn btn-danger " id="deleteEmployee" data-id="' + item.EmployeeId + '">Delete</a></td>'
+                            obj += '</tr>'
+                        });
+                        $('#employeeList').html(obj);
+                    }
+                });
+            }
+
+            // Fetch employees and populate list on page load
+
+
+            // Show/hide add employee form
+            $('#addEmployeeButton').click(function () {
+                $('#addEmployeeForm').toggle();
+            });
+
+            // Show employee details
+            $(document).on('click', '.employeeLink', function () {
+
+                var employeeId = $(this).data('id');
+                var url = 'https://localhost:44324/Employee_New/GetEmployeeDetails?employeeId=' + employeeId
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function (data) {
+
+                        var detailsHtml = '<div class="container justify-item-center">';
+                        detailsHtml += 'Employee ID: ' + data.EmployeeId + '<br />';
+                        detailsHtml += 'Name: ' + data.Name + '<br />';
+                        detailsHtml += 'Department ID: ' + data.DepartmentId + '<br />';
+                        detailsHtml += 'Department: ' + data.Department;
+                        detailsHtml += '</div>';
+                        $('#employeeDetails').html(detailsHtml);
+                    }
+                });
+            });
+
+            // Edit employee
+
+            // Edit employee form submission
+            $('#formEditEmployee').on('submit', function (event) {
+
+
+                var employeeId = $('#editEmployeeId').val();
+                var name = $('#editEmployeeName').val();
+                var departmentId = $('#EmployeeDepartment').val();
+
+                $.ajax({
+                    url: '/Employee/Edit',
+                    method: 'POST',
+                    data: {
+                        employeeId: employeeId,
+                        name: name,
+                        departmentId: departmentId
+                    },
+                    success: function () {
+                        fetchEmployees();
+                        $('#employeeDetails').empty();
+                    },
+                    error: function () {
+                        alert('An error occurred while editing the employee.');
+                    }
+                });
+            });
+
+            // Show employee details and edit form on employee link click
+            $(document).on('click', '#employeeEditButton', function () {
+               // debugger
+                var employeeId = $(this).data('id');
+                var url = 'https://localhost:44324/Employee_New/GetEmployeeDetails?employeeId=' + employeeId
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function (data) {
+                       // debugger
+                        $('#editEmployeeId').val(data.EmployeeId);
+                        $('#editEmployeeName').val(data.Name);
+
+                        // Fetch department names and populate dropdown
+                        $.ajax({
+                            url: '/Employee_New/GetDepartmentNames',
+                            method: 'GET',
+                            success: function (departments) {
+                                var departmentDropdown = $('#editEmployeeDepartment');
+                                departmentDropdown.empty();
+                                $.each(departments, function (index, department) {
+                                    departmentDropdown.append($('<option></option>').val(department.Value).text(department.Text));
+                                });
+                                departmentDropdown.val(data.DepartmentId);
+                            }
+
+
+                        });
+                        $('#editEmployeeDepartment').val(data.DepartmentId);
+
+                        // Show the edit form
+                       $('#employeeEdit').html($('#formEditEmployee').html());
+                        //$('#employeeDetails').html(detailsHtml);
+                    }
+                });
+
+               
+            });
+            setTimeout(function () {
+                $('#employeeEdit').html($('#formEditEmployee').html());
+            }, 5000);
+
+            // Cancel edit and show employee details
+            $(document).on('click', '#cancelEdit', function () {
+
+                $('#employeeDetails').empty();
+            });
+
+            $(document).on('click', '#employeeEEdit', function () {
+                var employeeId = $(this).data('id');
+                var url = 'https://localhost:44324/Employee_New/GetEmployeeDetails?employeeId=' + employeeId
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function (data) {
+                        debugger
+                        var detailsHtml = '<div>';
+                        detailsHtml += '<h2 class="text-center text-uppercase">Edit ' + data.Name + '`s Information</h2>'
+                        detailsHtml += '<input class="form-control mb-2" type="text" type="text" id="editEmployeeId" value="' + data.EmployeeId + '" readonly="readonly" /><br />';
+                        detailsHtml += '<input class="form-control mb-2" type="text" type="text" id="editEmployeeName" value="' + data.Name + '" /><br />';
+                        detailsHtml += '<div class="form-group"><label for="EmployeeDepartment">Department</label><select id="EmployeeDepartment" value="' + data.Department + '" class="form-control"></select></div><button type="submit">Save Changes</button><button type="button" class="cancelEdit">Cancel</button>'
+                        /*detailsHtml += 'Department: ' + data.Department;*/
+                        detailsHtml += '</div>';
+                        $('#employeeDetails').html(detailsHtml);
+                    }
+                });
+            });
+
+            // Delete employee
+            $(document).on('click', '#deleteEmployee', function () {
+                debugger
+                var employeeId = $(this).data('id');
+                var url = 'https://localhost:44324/Employee_New/DeleteEmployee?employeeId=' + employeeId
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    success: function () {
+
+                        // Fetch updated employee list
+                        fetchEmployees();
+                        $('#employeeDetails').empty();
+                    },
+                    error: function () {
+                        alert('An error occurred while deleting the employee.');
+                    }
+                });
+            });
+
+            // Add employee form submission
+            $('#formAddEmployee').on('submit', function (event) {
+
+                event.preventDefault();
+                var newEmployeeId = $('#newEmployeeId').val();
+                var newEmployeeName = $('#newEmployeeName').val();
+                var newEmployeeDepartment = $('#EmployeeDepartment').val();
+
+                $.ajax({
+                    url: '/Employee_New/CreateEmployee',
+                    method: 'POST',
+                    data: {
+                        Id: newEmployeeId,
+                        Name: newEmployeeName,
+                        DepartmentId: newEmployeeDepartment
+                    },
+                    success: function () {
+                        $('#newEmployeeName').val('');
+                        $('#EmployeeDepartment').val('');
+                        $('#addEmployeeForm').hide();
+                        fetchEmployees();
+                    },
+                    error: function () {
+                        alert('An error occurred while adding the employee.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
